@@ -1,0 +1,69 @@
+<div class="login-page">
+  <div class="login-left">
+    <div class="brand">
+      <span class="brand-icon">🎓</span>
+      <h1>E-Learning</h1>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <span>📚</span>
+        <p>Des cours de qualité</p>
+      </div>
+      <div class="feature">
+        <span>🏆</span>
+        <p>Obtenez des certificats</p>
+      </div>
+      <div class="feature">
+        <span>📊</span>
+        <p>Suivez votre progression</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-card">
+      <h2>Connexion</h2>
+      <p class="subtitle">Connectez-vous à votre compte</p>
+
+      <div class="error-box" *ngIf="errorMessage">
+        ⚠️ {{ errorMessage }}
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email"
+                 [(ngModel)]="loginData.email"
+                 placeholder="exemple@email.com"
+                 class="form-input"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input [type]="hidePassword ? 'password' : 'text'"
+                 [(ngModel)]="loginData.password"
+                 placeholder="Votre mot de passe"
+                 class="form-input"/>
+          <button class="toggle-btn" (click)="hidePassword = !hidePassword">
+            {{ hidePassword ? '👁️' : '🙈' }}
+          </button>
+        </div>
+      </div>
+
+      <button class="login-btn" (click)="onLogin()" [disabled]="isLoading">
+        <span *ngIf="isLoading">Chargement...</span>
+        <span *ngIf="!isLoading">Se connecter →</span>
+      </button>
+
+      <div class="register-link">
+        Pas encore de compte ?
+        <a routerLink="/register">S'inscrire gratuitement</a>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

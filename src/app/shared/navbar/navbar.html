@@ -1,0 +1,40 @@
+<mat-toolbar class="navbar">
+  <div class="navbar-brand" routerLink="/courses">
+    <mat-icon>school</mat-icon>
+    <span>E-Learning</span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <nav class="nav-links" *ngIf="authService.isLoggedIn()">
+    <a mat-button routerLink="/courses">
+      <mat-icon>library_books</mat-icon>
+      Cours
+    </a>
+    <a mat-button [routerLink]="getDashboardRoute()">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </a>
+  </nav>
+
+  <div class="user-menu" *ngIf="authService.isLoggedIn()">
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="user-info">
+        <mat-icon>person</mat-icon>
+        <span>{{ authService.getCurrentUser()?.firstName }}</span>
+      </div>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Se déconnecter
+      </button>
+    </mat-menu>
+  </div>
+
+  <div *ngIf="!authService.isLoggedIn()">
+    <a mat-button routerLink="/login">Se connecter</a>
+    <a mat-raised-button color="primary" routerLink="/register">S'inscrire</a>
+  </div>
+</mat-toolbar>

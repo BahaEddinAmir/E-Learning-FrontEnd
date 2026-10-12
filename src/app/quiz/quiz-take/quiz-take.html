@@ -1,0 +1,49 @@
+<app-navbar></app-navbar>
+
+<div class="quiz-container" *ngIf="!isLoading && quiz && !result">
+  <h1>📝 {{ quiz.title }}</h1>
+  <p class="quiz-info">Score de réussite : {{ quiz.passingScore }}% — Tentatives max : {{ quiz.maxAttempts }}</p>
+
+  <div class="question-block" *ngFor="let question of quiz.questions; let i = index">
+    <h3>{{ i + 1 }}. {{ question.content }}</h3>
+    <div class="options">
+      <label class="option" [class.selected]="answers[question.id] === 'A'">
+        <input type="radio" [name]="'q' + question.id" (click)="selectAnswer(question.id, 'A')" />
+        A. {{ question.optionA }}
+      </label>
+      <label class="option" [class.selected]="answers[question.id] === 'B'">
+        <input type="radio" [name]="'q' + question.id" (click)="selectAnswer(question.id, 'B')" />
+        B. {{ question.optionB }}
+      </label>
+      <label class="option" *ngIf="question.optionC" [class.selected]="answers[question.id] === 'C'">
+        <input type="radio" [name]="'q' + question.id" (click)="selectAnswer(question.id, 'C')" />
+        C. {{ question.optionC }}
+      </label>
+      <label class="option" *ngIf="question.optionD" [class.selected]="answers[question.id] === 'D'">
+        <input type="radio" [name]="'q' + question.id" (click)="selectAnswer(question.id, 'D')" />
+        D. {{ question.optionD }}
+      </label>
+    </div>
+  </div>
+
+  <button class="submit-btn" (click)="submit()" [disabled]="isSubmitting">
+    {{ isSubmitting ? 'Envoi...' : 'Soumettre le quiz' }}
+  </button>
+</div>
+
+<div class="result-container" *ngIf="result">
+  <div class="result-card" [class.passed]="result.passed" [class.failed]="!result.passed">
+    <span class="result-icon">{{ result.passed ? '🎉' : '😕' }}</span>
+    <h2>{{ result.message }}</h2>
+    <p class="score">Score : {{ result.score }}%</p>
+    <p class="attempt">Tentative n° {{ result.attemptNumber }}</p>
+
+    <a *ngIf="result.certificateUrl" [href]="result.certificateUrl" target="_blank" class="cert-btn">
+      🏆 Télécharger le certificat
+    </a>
+
+    <button class="back-btn" (click)="backToDashboard()">Retour au tableau de bord</button>
+  </div>
+</div>
+
+<div class="error-state" *ngIf="error">⚠️ {{ error }}</div>

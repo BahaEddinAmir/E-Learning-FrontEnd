@@ -1,0 +1,87 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h1>Bonjour, {{ user?.firstName }} 👋</h1>
+      <p>Continuez votre apprentissage là où vous vous étiez arrêté.</p>
+    </div>
+    <mat-icon class="welcome-icon">school</mat-icon>
+  </div>
+
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-icon color="primary">library_books</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.enrolled }}</h3>
+        <p>Cours inscrits</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #4CAF50">check_circle</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.completed }}</h3>
+        <p>Cours terminés</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #FF9800">trending_up</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.inProgress }}</h3>
+        <p>En cours</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #9C27B0">workspace_premium</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.certificates }}</h3>
+        <p>Certificats</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <h2 class="section-title">Mes cours en cours</h2>
+
+  <div class="courses-list">
+    <mat-card class="course-progress-card" *ngFor="let course of enrolledCourses">
+      <mat-card-header>
+        <div class="course-icon" mat-card-avatar>
+          <mat-icon>play_circle</mat-icon>
+        </div>
+        <mat-card-title>{{ course.courseTitle }}</mat-card-title>
+        <mat-card-subtitle>{{ course.modulesCompleted }}/{{ course.totalModules }} chapitres complétés</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="progress-info">
+          <span>Progression</span>
+          <span class="progress-percent">{{ course.progress }}%</span>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="course.progress" color="primary"></mat-progress-bar>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" [routerLink]="['/courses', course.courseId]">
+          Continuer
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Certificates Section -->
+  <div *ngIf="certificates.length > 0" class="certificates-section">
+    <h2 class="section-title">🏆 Mes certificats</h2>
+    <div class="certificates-list">
+      <mat-card class="cert-card" *ngFor="let cert of certificates">
+        <mat-card-header>
+          <mat-icon mat-card-avatar style="color: #d97706; font-size: 32px;">workspace_premium</mat-icon>
+          <mat-card-title>{{ cert.course?.title || 'Certificat #' + cert.uniqueNumber }}</mat-card-title>
+          <mat-card-subtitle>Délivré le {{ cert.issuedAt | date:'dd/MM/yyyy' }} · N° {{ cert.uniqueNumber }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions>
+          <button mat-raised-button color="accent" (click)="downloadCertificate(cert)">
+            <mat-icon>download</mat-icon> Télécharger
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

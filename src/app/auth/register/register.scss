@@ -1,0 +1,161 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #1565C0 0%, #1E88E5 50%, #42A5F5 100%);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 16px 8px;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+mat-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 8px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #1565C0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+  }
+
+  mat-card-title {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  mat-card-subtitle {
+    font-size: 14px;
+  }
+}
+
+mat-card-content {
+  padding-top: 8px;
+}
+
+.name-row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.error-message,
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.error-message {
+  background: #FDECEA;
+  color: #C62828;
+}
+
+.success-message {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.approval-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #FFF8E1;
+  color: #8D6E00;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: -4px;
+  margin-bottom: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+mat-card-actions {
+  padding: 8px 16px 4px;
+}
+
+.register-btn {
+  height: 44px;
+  font-weight: 600;
+  font-size: 15px;
+
+  mat-spinner {
+    margin: 0 auto;
+  }
+}
+
+.login-link {
+  text-align: center;
+  padding: 12px 0 4px;
+  font-size: 14px;
+  color: #616161;
+
+  a {
+    color: #1565C0;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 4px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .name-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

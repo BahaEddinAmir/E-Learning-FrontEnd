@@ -1,0 +1,107 @@
+<app-navbar></app-navbar>
+
+<div class="error-msg" style="margin: 20px; padding: 15px; background: #ffebee; color: #c62828; border-radius: 8px;" *ngIf="error && !course">
+  ⚠️ {{ error }}
+  <br><br>
+  <a routerLink="/dashboard/formateur">Retour au tableau de bord</a>
+</div>
+
+<div class="manage-container" *ngIf="course">
+  <div class="manage-header">
+    <h1>✏️ Gérer : {{ course.title }}</h1>
+    <div class="header-actions">
+      <button class="pub-btn" *ngIf="course.status === 'DRAFT'" (click)="publishCourse()">📢 Publier le cours</button>
+      <span class="status-badge" [class.published]="course.status === 'PUBLISHED'">
+        Status: {{ course.status === 'PUBLISHED' ? 'Publié' : 'Brouillon' }}
+      </span>
+      <a [routerLink]="['/courses', courseId]" class="back-link">← Retour au cours</a>
+    </div>
+  </div>
+
+  <div class="error-msg" *ngIf="error" (click)="clearMessages()">⚠️ {{ error }}</div>
+  <div class="success-msg" *ngIf="success" (click)="clearMessages()">✅ {{ success }}</div>
+
+  <div class="section">
+    <div class="section-title">
+      <h2>📚 Modules</h2>
+      <button class="add-btn" (click)="showModuleForm = !showModuleForm">
+        {{ showModuleForm ? 'Annuler' : '+ Ajouter un module' }}
+      </button>
+    </div>
+
+    <div class="inline-form" *ngIf="showModuleForm">
+      <input type="text" [(ngModel)]="newModuleTitle" placeholder="Titre du module" />
+      <textarea [(ngModel)]="newModuleDescription" placeholder="Description"></textarea>
+      <button class="save-btn" (click)="addModule()">Enregistrer</button>
+    </div>
+
+    <div class="module-card" *ngFor="let module of modules">
+      <div class="module-card-header">
+        <h4>{{ module.title }}</h4>
+        <button class="add-btn small" (click)="toggleChapterForm(module.id)">
+          {{ showChapterFormFor === module.id ? 'Annuler' : '+ Chapitre' }}
+        </button>
+      </div>
+      <p>{{ module.description }}</p>
+
+      <div class="inline-form" *ngIf="showChapterFormFor === module.id">
+        <input type="text" [(ngModel)]="newChapterTitle" placeholder="Titre du chapitre" />
+        <textarea [(ngModel)]="newChapterDescription" placeholder="Description du chapitre"></textarea>
+        <input type="text" [(ngModel)]="newChapterVideoUrl" placeholder="URL de la vidéo (YouTube, Drive...)" />
+        <input type="number" [(ngModel)]="newChapterDuration" placeholder="Durée de la vidéo (min)" />
+        <button class="save-btn" (click)="addChapter(module.id)">Enregistrer</button>
+      </div>
+
+      <div class="video-list">
+        <div class="video-row" *ngFor="let chapter of module.chapters">
+          📖 {{ chapter.title }} <span *ngIf="chapter.videoDuration">({{ chapter.videoDuration }} min)</span>
+        </div>
+        <div class="no-videos" *ngIf="!module.chapters || module.chapters.length === 0">
+          Aucun chapitre dans ce module.
+        </div>
+      </div>
+    </div>
+
+    <div class="no-modules" *ngIf="modules.length === 0">Aucun module pour le moment.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <h2>📝 Quiz Final</h2>
+      <button class="add-btn" *ngIf="!hasQuiz" (click)="showQuizForm = !showQuizForm">
+        {{ showQuizForm ? 'Annuler' : '+ Créer le quiz final' }}
+      </button>
+      <span class="already-tag" *ngIf="hasQuiz">✅ Quiz final créé</span>
+    </div>
+
+    <div class="quiz-form" *ngIf="showQuizForm">
+      <input type="text" [(ngModel)]="quizTitle" placeholder="Titre du quiz" />
+      <div class="quiz-settings">
+        <label>
+          Score de réussite (%)
+          <input type="number" [(ngModel)]="quizPassingScore" />
+        </label>
+        <label>
+          Tentatives max
+          <input type="number" [(ngModel)]="quizMaxAttempts" />
+        </label>
+      </div>
+
+      <div class="question-card" *ngFor="let question of questions; let i = index">
+        <div class="question-header">
+          <span>Question {{ i + 1 }}</span>
+          <button class="remove-btn" (click)="removeQuestion(i)">✕</button>
+        </div>
+        <input type="text" [(ngModel)]="question.content" placeholder="Énoncé de la question" />
+        <input type="text" [(ngModel)]="question.optionA" placeholder="Option A" />
+        <input type="text" [(ngModel)]="question.optionB" placeholder="Option B" />
+        <input type="text" [(ngModel)]="question.optionC" placeholder="Option C" />
+        <input type="text" [(ngModel)]="question.optionD" placeholder="Option D" />
+        <input type="text" [(ngModel)]="question.correctAnswer" placeholder="Réponse correcte (A/B/C/D)" />
+      </div>
+
+      <button class="add-btn small" (click)="addQuestion()">+ Ajouter une question</button>
+      <button class="save-btn full" (click)="saveQuiz()">Enregistrer le quiz</button>
+    </div>
+  </div>
+</div>

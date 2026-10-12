@@ -1,0 +1,79 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h1>Bonjour, {{ user?.firstName }} 👋</h1>
+      <p>Gérez vos cours et suivez vos étudiants.</p>
+    </div>
+    <mat-icon class="welcome-icon">cast_for_education</mat-icon>
+  </div>
+
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-icon color="primary">library_books</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.courses }}</h3>
+        <p>Mes cours</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #4CAF50">group</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.students }}</h3>
+        <p>Étudiants inscrits</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #FF9800">quiz</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.quizzes }}</h3>
+        <p>Quiz créés</p>
+      </div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-icon style="color: #2196F3">published_with_changes</mat-icon>
+      <div class="stat-info">
+        <h3>{{ stats.published }}</h3>
+        <p>Cours publiés</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">Mes cours</h2>
+    <button mat-raised-button color="primary" (click)="showCreateForm = !showCreateForm">
+      {{ showCreateForm ? 'Annuler' : '+ Ajouter un cours' }}
+    </button>
+  </div>
+
+  <div class="create-form" *ngIf="showCreateForm">
+    <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+    <input type="text" [(ngModel)]="newCourseTitle" placeholder="Titre du cours" />
+    <textarea [(ngModel)]="newCourseDescription" placeholder="Description"></textarea>
+    <button mat-raised-button color="primary" (click)="createCourse()">Créer le cours</button>
+  </div>
+
+  <div class="courses-list">
+    <mat-card class="course-card" *ngFor="let course of myCourses">
+      <mat-card-header>
+        <mat-card-title>{{ course.title }}</mat-card-title>
+        <mat-card-subtitle>{{ course.studentsCount }} étudiants inscrits</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <span class="status-badge" [class.published]="course.status === 'PUBLISHED'"
+              [class.draft]="course.status === 'DRAFT'">
+          {{ course.status }}
+        </span>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="manageCourse(course.id)">Gérer</button>
+        <button mat-button color="accent">Statistiques</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="no-courses" *ngIf="myCourses.length === 0">
+      <p>Vous n'avez pas encore de cours. Cliquez sur "+ Ajouter un cours" pour commencer.</p>
+    </div>
+  </div>
+</div>

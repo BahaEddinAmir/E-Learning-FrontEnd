@@ -1,0 +1,225 @@
+<app-navbar></app-navbar>
+
+<!-- Loading State -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner-ring"></div>
+  <p>Chargement du cours...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-state" *ngIf="error && !isLoading">
+  <span>⚠️</span>
+  <p>{{ error }}</p>
+</div>
+
+<!-- Course Content -->
+<div class="course-detail-container" *ngIf="!isLoading && course">
+
+  <!-- Hero Banner -->
+  <div class="course-hero">
+    <div class="hero-content">
+      <span class="category-tag">{{ course.categoryName || 'Général' }}</span>
+      <h1>{{ course.title }}</h1>
+      <p>{{ course.description }}</p>
+      <div class="hero-meta">
+        <span>👨‍🏫 {{ course.formateurName }}</span>
+        <span>📦 {{ modules.length }} modules · {{ totalChapters }} chapitres</span>
+      </div>
+
+      <!-- Progress bar for enrolled students -->
+      <div class="progress-wrap" *ngIf="isStudent && isEnrolled">
+        <div class="progress-label">
+          <span>Progression</span>
+          <span class="pct">{{ progressPercent }}%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" [style.width.%]="progressPercent"></div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="hero-actions">
+        <button class="enroll-btn" *ngIf="isStudent && !isEnrolled" (click)="enroll()">
+          S'inscrire au cours →
+        </button>
+        <span class="enrolled-tag" *ngIf="isStudent && isEnrolled && progressPercent < 100">
+          ✅ Inscrit — continuez votre apprentissage
+        </span>
+
+        <!-- Certificate button -->
+        <button class="cert-btn" *ngIf="certificateId" (click)="downloadCertificate()" [disabled]="isDownloadingCert">
+          {{ isDownloadingCert ? '⏳ Téléchargement...' : '🏆 Télécharger le certificat' }}
+        </button>
+
+        <!-- Final quiz button -->
+        <button class="quiz-btn" *ngIf="isStudent && isEnrolled && course.quizId && !certificateId" (click)="goToQuiz(course.quizId!)">
+          📝 Passer le quiz final
+        </button>
+        <button class="manage-btn" *ngIf="isOwner" (click)="goToManage()">
+          ✏️ Gérer le cours
+        </button>
+      </div>
+    </div>
+    <div class="hero-image">🎓</div>
+  </div>
+
+  <!-- Chapter Player Overlay -->
+  <div class="chapter-player" *ngIf="selectedChapter">
+    <div class="player-header">
+      <button class="close-btn" (click)="closeChapter()">✕ Fermer</button>
+      <h2>{{ selectedChapter.title }}</h2>
+      <span class="completed-badge" *ngIf="isChapterCompleted(selectedChapter.id)">✅ Complété</span>
+    </div>
+
+    <!-- Video or description -->
+    <div class="player-body">
+      <div class="video-section" *ngIf="selectedChapter.videoUrl">
+        <div class="video-embed">
+          <video controls [src]="selectedChapter.videoUrl" *ngIf="!selectedChapter.videoUrl.includes('youtube') && !selectedChapter.videoUrl.includes('youtu.be')">
+            Votre navigateur ne supporte pas la balise vidéo.
+          </video>
+          <iframe *ngIf="selectedChapter.videoUrl.includes('youtube') || selectedChapter.videoUrl.includes('youtu.be')"
+            [src]="selectedChapter.videoUrl | safeUrl"
+            frameborder="0"
+            allowfullscreen></iframe>
+        </div>
+        <p class="video-desc" *ngIf="selectedChapter.description">{{ selectedChapter.description }}</p>
+        <p class="video-duration" *ngIf="selectedChapter.videoDuration">⏱️ Durée : {{ selectedChapter.videoDuration }} min</p>
+      </div>
+      <div class="no-video" *ngIf="!selectedChapter.videoUrl">
+        <p>{{ selectedChapter.description || 'Aucune vidéo pour ce chapitre.' }}</p>
+      </div>
+
+      <!-- Quiz Section -->
+      <div class="quiz-section" *ngIf="selectedChapter.questions && selectedChapter.questions.length > 0 && !isChapterCompleted(selectedChapter.id)">
+        <button class="toggle-quiz-btn" (click)="showQuiz = !showQuiz">
+          {{ showQuiz ? '▲ Masquer le quiz' : '📝 Passer le quiz du chapitre' }}
+        </button>
+
+        <div class="quiz-body" *ngIf="showQuiz && !chapterQuizResult">
+          <h3>Quiz du chapitre</h3>
+          <div class="question-block" *ngFor="let q of selectedChapter.questions; let i = index">
+            <p class="question-text">{{ i + 1 }}. {{ q.content }}</p>
+            <div class="options">
+              <label class="option-label" [class.selected]="chapterAnswers[q.id] === 'A'" (click)="selectAnswer(q.id, 'A')">
+                <span class="opt-letter">A</span> {{ q.optionA }}
+              </label>
+              <label class="option-label" [class.selected]="chapterAnswers[q.id] === 'B'" (click)="selectAnswer(q.id, 'B')">
+                <span class="opt-letter">B</span> {{ q.optionB }}
+              </label>
+              <label class="option-label" *ngIf="q.optionC" [class.selected]="chapterAnswers[q.id] === 'C'" (click)="selectAnswer(q.id, 'C')">
+                <span class="opt-letter">C</span> {{ q.optionC }}
+              </label>
+              <label class="option-label" *ngIf="q.optionD" [class.selected]="chapterAnswers[q.id] === 'D'" (click)="selectAnswer(q.id, 'D')">
+                <span class="opt-letter">D</span> {{ q.optionD }}
+              </label>
+            </div>
+          </div>
+          <button class="submit-quiz-btn" (click)="submitChapterQuiz()" [disabled]="isSubmittingQuiz">
+            {{ isSubmittingQuiz ? '⏳ Envoi...' : 'Valider mes réponses' }}
+          </button>
+        </div>
+
+        <!-- Quiz Result -->
+        <div class="quiz-result" *ngIf="chapterQuizResult" [class.passed]="chapterQuizResult.passed" [class.failed]="!chapterQuizResult.passed">
+          <span class="result-icon">{{ chapterQuizResult.passed ? '🎉' : '❌' }}</span>
+          <p>{{ chapterQuizResult.message }}</p>
+          <p class="score-text">Score : {{ chapterQuizResult.score }}%</p>
+          <button class="retry-btn" *ngIf="!chapterQuizResult.passed" (click)="chapterQuizResult = null; showQuiz = true">
+            🔄 Réessayer
+          </button>
+        </div>
+      </div>
+
+      <!-- Already completed -->
+      <div class="completed-info" *ngIf="isChapterCompleted(selectedChapter.id)">
+        <span>✅</span> <p>Vous avez déjà complété ce chapitre.</p>
+      </div>
+      <!-- No quiz chapter - mark complete on open -->
+      <div class="no-quiz-complete" *ngIf="selectedChapter.questions && selectedChapter.questions.length === 0 && !isChapterCompleted(selectedChapter.id)">
+        <button class="submit-quiz-btn" (click)="submitChapterQuiz()">Marquer comme terminé ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="course-content">
+    <!-- Modules list -->
+    <div class="modules-section">
+      <h2>📚 Contenu du cours</h2>
+
+      <div class="module-card" *ngFor="let module of modules; let mi = index">
+        <div class="module-header">
+          <span class="module-number">{{ mi + 1 }}</span>
+          <div class="module-info">
+            <h4>{{ module.title }}</h4>
+            <p *ngIf="module.description">{{ module.description }}</p>
+            <span class="chapter-count">{{ module.chapters?.length || 0 }} chapitre(s)</span>
+          </div>
+        </div>
+
+        <!-- Chapters -->
+        <div class="chapters-list" *ngIf="module.chapters && module.chapters.length > 0">
+          <div class="chapter-item"
+               *ngFor="let chapter of module.chapters; let ci = index"
+               [class.clickable]="isEnrolled"
+               [class.completed]="isChapterCompleted(chapter.id)"
+               [class.active]="selectedChapter?.id === chapter.id"
+               (click)="selectChapter(chapter)">
+            <div class="chapter-left">
+              <span class="chapter-icon">
+                <span *ngIf="isChapterCompleted(chapter.id)">✅</span>
+                <span *ngIf="!isChapterCompleted(chapter.id)">{{ ci + 1 }}</span>
+              </span>
+              <div>
+                <span class="chapter-title">{{ chapter.title }}</span>
+                <span class="chapter-meta" *ngIf="chapter.videoDuration"> · ⏱ {{ chapter.videoDuration }} min</span>
+                <span class="quiz-badge" *ngIf="chapter.questions && chapter.questions.length > 0"> · 📝 Quiz</span>
+              </div>
+            </div>
+            <span class="play-icon" *ngIf="isEnrolled">▶</span>
+            <span class="lock-icon" *ngIf="!isEnrolled">🔒</span>
+          </div>
+        </div>
+
+        <!-- Legacy Videos (backward compat) -->
+        <div class="video-list" *ngIf="(!module.chapters || module.chapters.length === 0) && module.videos && module.videos.length > 0">
+          <div class="video-item" *ngFor="let video of module.videos">
+            <span>🎬 {{ video.title }}</span>
+            <span class="video-duration">{{ video.duration }} min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-modules" *ngIf="modules.length === 0">
+        <p>Aucun module disponible pour le moment.</p>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="course-sidebar">
+      <div class="sidebar-card">
+        <h3>À propos de ce cours</h3>
+        <ul>
+          <li>📦 {{ modules.length }} modules — {{ totalChapters }} chapitres</li>
+          <li>👨‍🏫 Formateur : {{ course.formateurName }}</li>
+          <li>🏷️ Catégorie : {{ course.categoryName || 'Général' }}</li>
+          <li *ngIf="isEnrolled && isStudent">📊 Progression : {{ progressPercent }}%</li>
+        </ul>
+
+        <button class="sidebar-btn" *ngIf="isStudent && !isEnrolled" (click)="enroll()">
+          S'inscrire gratuitement
+        </button>
+        <button class="sidebar-btn enrolled-disabled" *ngIf="isStudent && isEnrolled && !certificateId" disabled>
+          ✅ Déjà inscrit
+        </button>
+        <button class="sidebar-btn cert-download-btn" *ngIf="certificateId" (click)="downloadCertificate()" [disabled]="isDownloadingCert">
+          {{ isDownloadingCert ? '⏳ Téléchargement...' : '🏆 Télécharger le certificat' }}
+        </button>
+        <button class="sidebar-btn formateur-btn" *ngIf="isOwner" (click)="goToManage()">
+          ✏️ Gérer le cours
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

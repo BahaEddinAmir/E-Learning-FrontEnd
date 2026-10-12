@@ -1,0 +1,54 @@
+<app-navbar></app-navbar>
+
+<div class="course-list-container">
+  <div class="hero-section">
+    <h1>📚 Catalogue des cours</h1>
+    <p>Découvrez nos formations et développez vos compétences</p>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text"
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="onSearch()"
+             placeholder="Rechercher un cours..."/>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement des cours...</p>
+  </div>
+
+  <div class="error-msg" *ngIf="error">
+    ⚠️ {{ error }}
+    <button (click)="loadCourses()">Réessayer</button>
+  </div>
+
+  <div class="courses-grid" *ngIf="!isLoading && !error">
+    <div class="course-card" *ngFor="let course of filteredCourses">
+      <div class="course-image">
+        <span>🎓</span>
+      </div>
+      <div class="course-body">
+        <span class="category-tag">{{ course.categoryName || 'Général' }}</span>
+        <h3>{{ course.title }}</h3>
+        <p>{{ course.description }}</p>
+        <div class="course-meta">
+          <span>👨‍🏫 {{ course.formateurName }}</span>
+          <span>📦 {{ course.modulesCount }} modules</span>
+        </div>
+      </div>
+      <div class="course-footer">
+        <a [routerLink]="['/courses', course.id]" class="view-btn">
+          Voir le cours →
+        </a>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="filteredCourses.length === 0">
+      <span>🔍</span>
+      <p>Aucun cours trouvé.</p>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

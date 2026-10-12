@@ -1,0 +1,108 @@
+<app-navbar></app-navbar>
+
+<div class="admin-container">
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h1>Console Administrateur 🛡️</h1>
+      <p>Gérez les utilisateurs, cours et contenus de la plateforme.</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <h3>{{ stats.users }}</h3>
+        <p>Utilisateurs</p>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">📚</div>
+      <div class="stat-info">
+        <h3>{{ stats.courses }}</h3>
+        <p>Cours publiés</p>
+      </div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">📝</div>
+      <div class="stat-info">
+        <h3>{{ stats.enrollments }}</h3>
+        <p>Inscriptions</p>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-info">
+        <h3>{{ stats.certificates }}</h3>
+        <p>Certificats</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" *ngIf="pendingUsers.length > 0">
+    <h2 class="section-heading">
+      <span class="heading-icon">🔐</span>
+      <span>Comptes en attente d'approbation ({{ pendingUsers.length }})</span>
+    </h2>
+    <div class="pending-list">
+      <div class="pending-card" *ngFor="let pendingUser of pendingUsers">
+        <div class="pending-info">
+          <h4>{{ pendingUser.firstName }} {{ pendingUser.lastName }}</h4>
+          <p>{{ pendingUser.email }} — <span class="role-badge" [class]="pendingUser.role.toLowerCase()">{{ pendingUser.role }}</span></p>
+        </div>
+        <div class="pending-actions">
+          <button class="approve-btn" (click)="approveUser(pendingUser.id)">✅ Approuver</button>
+          <button class="reject-btn" (click)="rejectUser(pendingUser.id)">❌ Rejeter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="section">
+      <h2 class="section-heading">
+        <span class="heading-icon">👤</span>
+        <span>Utilisateurs récents</span>
+      </h2>
+      <div class="table-container">
+        <table>
+          <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let recentUser of recentUsers">
+            <td>{{ recentUser.firstName }} {{ recentUser.lastName }}</td>
+            <td>{{ recentUser.email }}</td>
+            <td><span class="role-badge" [class]="recentUser.role.toLowerCase()">{{ recentUser.role }}</span></td>
+            <td><span class="status-badge" [class.active]="recentUser.isActive" [class.inactive]="!recentUser.isActive">{{ recentUser.isActive ? 'Actif' : 'Inactif' }}</span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-heading">
+        <span class="heading-icon">⏳</span>
+        <span>Cours en attente de validation</span>
+      </h2>
+      <div class="pending-list">
+        <div class="pending-card" *ngFor="let course of pendingCourses">
+          <div class="pending-info">
+            <h4>{{ course.title }}</h4>
+            <p>Par {{ course.formateurName }}</p>
+          </div>
+          <div class="pending-actions">
+            <button class="approve-btn" (click)="approveCourse(course.id)">✅ Approuver</button>
+            <button class="reject-btn" (click)="rejectCourse(course.id)">❌ Rejeter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
